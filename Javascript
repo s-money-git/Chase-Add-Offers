@@ -1,0 +1,31 @@
+const originalUrl = window.location.href; // Store original page URL
+
+function clickAndReturn() {
+    // Reselect buttons after page reload
+    const buttons = document.querySelectorAll('[data-cy="commerce-tile-button"]');
+
+    if (buttons.length > 0) {
+        console.log(`Clicking an offer... (${buttons.length} remaining)`);
+
+        buttons[0].click(); // Always click the first button
+
+        // Wait for the new page to load before returning
+        let backDelay = Math.floor(Math.random() * 2000) + 2000; // 2-4 sec delay
+        setTimeout(() => {
+            console.log("Returning to original page...");
+            window.location.href = originalUrl; // Navigate back
+
+            // Wait for the page to reload before clicking next offer
+            let reloadDelay = Math.floor(Math.random() * 4000) + 3000; // 3-7 sec delay
+            setTimeout(() => {
+                console.log("Waiting before next click...");
+                clickAndReturn(); // Restart the process
+            }, reloadDelay);
+        }, backDelay);
+    } else {
+        console.log("✅ All offers added!");
+    }
+}
+
+// Start the process after a short delay
+setTimeout(clickAndReturn, 2000);
