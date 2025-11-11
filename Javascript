@@ -20,9 +20,9 @@
             <p id="timeLeft">⏳ Est. Time Left: --</p>
             <label>⏩ Speed:</label>
             <select id="speed-control">
-                <option value="3000">Slow</option>
-                <option value="2000">Normal</option>
-                <option value="1000" selected>Fast</option> <!-- Default set to Fast -->
+                <option value="2000">Slow</option>
+                <option value="1000">Normal</option>
+                <option value="800" selected>Fast</option> <!-- Default set to Fast -->
             </select>
             <br><br>
             <button id="start-btn" style="padding:5px 10px; margin: 5px; cursor:pointer;">▶ Start</button>
@@ -51,7 +51,30 @@
             console.log(`📌 Clicking an offer... (${offersLeft} remaining)`);
             console.log(`⏳ Estimated time left: ${minTimeSec}-${maxTimeSec} seconds`);
 
-            buttons[0].click();
+            // FIX: Better click handling with error checking
+            const button = buttons[0];
+            try {
+                if (button && typeof button.click === 'function') {
+                    button.click();
+                } else {
+                    // Fallback: Try to trigger click event manually
+                    console.log("⚠️ Using fallback click method");
+                    const clickEvent = new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    button.dispatchEvent(clickEvent);
+                }
+            } catch (error) {
+                console.error("❌ Error clicking button:", error);
+                // If click fails, try next button
+                if (attempts < 3) {
+                    console.log(`⚠️ Click failed. Retrying (${attempts + 1}/3)...`);
+                    setTimeout(() => clickAndReturn(attempts + 1), 1000);
+                    return;
+                }
+            }
 
             let backDelay = Math.floor(Math.random() * (delayTime / 2)) + delayTime;
             setTimeout(() => {
@@ -73,6 +96,7 @@
             } else {
                 console.log("✅ All offers added! (or no more found)");
                 document.getElementById("status").innerText = "✅ Status: Completed!";
+                isRunning = false;
             }
         }
     }
